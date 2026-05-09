@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install ruff black
+      - run: ruff check splice_kicad_plugin tests
+      - run: black --check splice_kicad_plugin tests
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pyright
+      - name: pyright
+        run: pyright splice_kicad_plugin
+        continue-on-error: true   # tighten to required once parser/build modules land
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pytest pytest-cov
+      - name: pytest
+        run: pytest tests/ -v --cov=splice_kicad_plugin
+        continue-on-error: true   # no tests yet; flip to required once fixtures land

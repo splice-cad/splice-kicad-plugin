@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "prefixes": ["J", "CN", "CON", "P", "X"],
+  "footprintPatterns": [
+    "^connector[_:]",
+    "conn_",
+    "^jst[_:]",
+    "^molex[_:]",
+    "^hirose[_:]",
+    "^amphenol[_:]",
+    "^te[_:]",
+    "^samtec[_:]",
+    "^phoenix[_:]",
+    "header",
+    "socket",
+    "plug",
+    "receptacle",
+    "pinheader",
+    "pinsocket",
+    "_conn$"
+  ],
+  "libIdPatterns": [
+    "^connector[_:]",
+    "conn_",
+    "conn:",
+    "header",
+    "socket",
+    "plug"
+  ],
+  "excludedPadTypes": ["np_thru_hole"],
+  "excludedPadPrefixes": ["MP", "MH", "MTG"]
+}

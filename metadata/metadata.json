@@ -1,0 +1,30 @@
+{
+  "$schema": "https://go.kicad.org/pcm/schemas/v1",
+  "name": "Splice CAD",
+  "description": "Export wired cable-harness plans from KiCad to Splice CAD.",
+  "description_full": "Splice CAD is a cable-harness design tool. This plugin extracts connectors and netlist edges from your KiCad project and POSTs them to your Splice working plan in one click. Requires a (free) Splice account and an MCP API key.\n\nFeatures:\n- One-click \"Tools -> External Plugins -> Export to Splice\"\n- Auto-detects connectors by reference prefix and footprint regex\n- Preserves conductor edges from the netlist\n- Carries KiCad part metadata for in-app catalog resolution\n- Headless CLI for CI use",
+  "identifier": "com.splice-cad.kicad-export",
+  "type": "plugin",
+  "author": { "name": "Splice CAD", "contact": { "web": "https://splice-cad.com" } },
+  "maintainer": { "name": "Splice CAD", "contact": { "web": "https://splice-cad.com" } },
+  "license": "GPL-3.0-or-later",
+  "resources": {
+    "homepage": "https://splice-cad.com",
+    "documentation": "https://splice-cad.com/docs/kicad-plugin",
+    "repository": "https://github.com/splice-cad/splice-kicad-plugin",
+    "bugtracker": "https://github.com/splice-cad/splice-kicad-plugin/issues"
+  },
+  "tags": ["harness", "wiring", "cad", "export", "cable"],
+  "versions": [
+    {
+      "version": "0.0.1",
+      "status": "development",
+      "kicad_version": "9.0",
+      "kicad_version_max": "11.99",
+      "download_url": "https://github.com/splice-cad/splice-kicad-plugin/releases/download/v0.0.1/splice-kicad-plugin-0.0.1.zip",
+      "download_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "download_size": 0,
+      "install_size": 0
+    }
+  ]
+}
