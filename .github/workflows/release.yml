@@ -1,0 +1,109 @@
+name: Release
+
+# Cut a release by pushing a tag like `v0.0.1` (must match version.py / metadata.json).
+# Builds the PCM zip, derives sha256/sizes FROM THE BUILT ZIP (so the published
+# artifact and the metadata can never drift), creates the GitHub release, and
+# publishes the self-hosted PCM repository to GitHub Pages.
+#
+# Prereq (one-time): repo Settings -> Pages -> Source: "GitHub Actions".
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (no leading v) — dry run, no release/publish'
+        required: true
+
+permissions:
+  contents: write   # create the GitHub release
+  pages: write      # deploy the PCM repo to Pages
+  id-token: write   # required by deploy-pages
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test deps
+        run: pip install pytest
+
+      - name: Tests must pass before release
+        run: pytest tests/ -q
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Version consistency check
+        run: |
+          PYVER=$(python -c "import splice_kicad_plugin.version as v; print(v.__version__)")
+          METAVER=$(python -c "import json; print(json.load(open('metadata/metadata.json'))['versions'][0]['version'])")
+          if [ "$PYVER" != "$VERSION" ] || [ "$METAVER" != "$VERSION" ]; then
+            echo "::error::version mismatch — tag=$VERSION version.py=$PYVER metadata.json=$METAVER"
+            exit 1
+          fi
+
+      - name: Build PCM zip
+        run: python packaging/build_pcm.py --version "$VERSION" --output dist
+
+      - name: Generate release metadata + self-hosted PCM repo
+        run: |
+          ZIP="dist/splice-kicad-plugin-$VERSION.zip"
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v$VERSION/splice-kicad-plugin-$VERSION.zip"
+          BASE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          python packaging/build_pcm_repo.py \
+            --version "$VERSION" \
+            --zip "$ZIP" \
+            --download-url "$DOWNLOAD_URL" \
+            --base-url "$BASE_URL" \
+            --out pcm-repo
+
+      - name: Upload Pages artifact (self-hosted PCM repo)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pcm-repo
+
+      - name: Create GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRERELEASE=""
+          case "$VERSION" in *-*) PRERELEASE="--prerelease" ;; esac
+          gh release create "v$VERSION" \
+            "dist/splice-kicad-plugin-$VERSION.zip" \
+            "pcm-repo/metadata.json" \
+            --title "v$VERSION" \
+            --notes-file CHANGELOG.md \
+            $PRERELEASE
+
+  deploy-pages:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

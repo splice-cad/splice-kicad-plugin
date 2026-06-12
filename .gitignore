@@ -9,6 +9,7 @@ __pycache__/
 htmlcov/
 *.egg-info/
 /dist/
+/pcm-repo/
 # Anchored: ignore the repo-root Python build-output dir and the PCM staging
 # dir, but NOT the source subpackage `splice_kicad_plugin/build/` (a generic
 # `build/` rule silently un-tracked it once — that broke a release).
