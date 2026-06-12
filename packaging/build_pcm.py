@@ -58,6 +58,18 @@ def build(version: str, output_dir: Path) -> Path:
     src_meta = json.loads((REPO_ROOT / "metadata" / "metadata.json").read_text())
     if version != "0.0.0-dev":
         src_meta["versions"][0]["version"] = version
+    # The metadata.json *inside the package* must not carry repository-level
+    # distribution fields — a package can't contain its own download hash, and
+    # KiCad's official PCM validator rejects `download_sha256` in the in-zip
+    # metadata. Those fields are assigned by the repository, not the package.
+    for ver in src_meta.get("versions", []):
+        for repo_field in (
+            "download_sha256",
+            "download_url",
+            "download_size",
+            "install_size",
+        ):
+            ver.pop(repo_field, None)
     (staging / "metadata.json").write_text(json.dumps(src_meta, indent=2) + "\n")
 
     zip_path = output_dir / f"splice-kicad-plugin-{version}.zip"

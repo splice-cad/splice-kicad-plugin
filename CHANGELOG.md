@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-06-12
+
+### Fixed
+
+- Packaging: the `metadata.json` embedded inside the distributed zip no longer
+  carries repository-level distribution fields (`download_sha256`,
+  `download_url`, `download_size`, `install_size`). A package can't contain its
+  own download hash, and KiCad's official Plugin and Content Manager validator
+  rejects `download_sha256` in the in-package metadata. This unblocks
+  submission to the official KiCad PCM repository.
+
 ## [0.0.1] - 2026-05-08
 
 Initial release. Exports KiCad cable-harness projects to Splice CAD.

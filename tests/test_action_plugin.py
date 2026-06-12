@@ -14,6 +14,7 @@ from splice_kicad_plugin.ui.action_plugin import (
     _project_name_for,
     _summarize_board,
 )
+from splice_kicad_plugin.version import __version__
 
 
 def test_summarize_board_lists_connectors(tmp_path: Path) -> None:
@@ -41,7 +42,7 @@ def test_summarize_board_lists_connectors(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     summary = _summarize_board(board)
-    assert "v0.0.1" in summary
+    assert f"v{__version__}" in summary
     assert "20240108" in summary
     assert "Footprints scanned : 3" in summary
     assert "Connectors detected: 2" in summary

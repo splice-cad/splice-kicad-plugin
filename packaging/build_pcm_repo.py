@@ -58,9 +58,7 @@ def _timestamps() -> tuple[str, int]:
     return now.strftime("%Y-%m-%d %H:%M:%S"), int(now.timestamp())
 
 
-def build(
-    version: str, zip_path: Path, download_url: str, base_url: str, out: Path
-) -> None:
+def build(version: str, zip_path: Path, download_url: str, base_url: str, out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     base_url = base_url.rstrip("/")
 
@@ -78,9 +76,7 @@ def build(
             ver["install_size"] = _install_size(zip_path)
             matched = True
     if not matched:
-        raise SystemExit(
-            f"version {version!r} not found in metadata.json versions[]"
-        )
+        raise SystemExit(f"version {version!r} not found in metadata.json versions[]")
 
     # 1) metadata.json — single-package, for the official KiCad PCM MR.
     meta_out = {"$schema": "https://go.kicad.org/pcm/schemas/v1", **pkg}

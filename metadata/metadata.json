@@ -17,11 +17,11 @@
   "tags": ["harness", "wiring", "cad", "export", "cable"],
   "versions": [
     {
-      "version": "0.0.1",
+      "version": "0.0.2",
       "status": "development",
       "kicad_version": "9.0",
       "kicad_version_max": "11.99",
-      "download_url": "https://github.com/splice-cad/splice-kicad-plugin/releases/download/v0.0.1/splice-kicad-plugin-0.0.1.zip",
+      "download_url": "https://github.com/splice-cad/splice-kicad-plugin/releases/download/v0.0.2/splice-kicad-plugin-0.0.2.zip",
       "download_sha256": "9b569fb6f41be2cac4a1bc587a56c4e01129c1feaec875aad9e8b13c9cc1fe8e",
       "download_size": 45869,
       "install_size": 126873
