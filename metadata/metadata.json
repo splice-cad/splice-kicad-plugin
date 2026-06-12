@@ -7,10 +7,10 @@
   "type": "plugin",
   "author": { "name": "Splice CAD", "contact": { "web": "https://splice-cad.com" } },
   "maintainer": { "name": "Splice CAD", "contact": { "web": "https://splice-cad.com" } },
-  "license": "GPL-3.0-or-later",
+  "license": "GPL-3.0",
   "resources": {
     "homepage": "https://splice-cad.com",
-    "documentation": "https://splice-cad.com/docs/kicad-plugin",
+    "documentation": "https://splice-cad.com/docs/harness/kicad-plugin",
     "repository": "https://github.com/splice-cad/splice-kicad-plugin",
     "bugtracker": "https://github.com/splice-cad/splice-kicad-plugin/issues"
   },
