@@ -79,8 +79,6 @@ Strict matching (no fuzzy) is available in Settings if you want predictable beha
 | `Splice_Group` | netclass | Group netclass members as a wire group |
 | `Splice_Twisted` | netclass | Mark a `Splice_Group` as a twisted pair |
 
-These are tracked in [RFC-003 §4.5](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003-KICAD-PLUGIN.md) and will land in subsequent releases.
-
 ## Local development install
 
 Symlink the package into KiCad's user scripting plugins directory; KiCad picks it up at next launch.
@@ -105,19 +103,6 @@ python3 -m venv .venv
 .venv/bin/pip install pytest
 .venv/bin/pytest tests/ -v
 ```
-
-## Architecture
-
-Architecture spec lives in the main Splice CAD repo:
-
-- [RFC-003](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003-KICAD-PLUGIN.md) — overview
-- [RFC-003a](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003a-PYTHON-CODEBASE.md) — Python codebase layout
-- [RFC-003b](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003b-PLANDATA-TRANSFORM.md) — PlanData transformation
-- [RFC-003c](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003c-DESKTOP-HANDOFF.md) — desktop handoff
-- [RFC-003d](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003d-DISTRIBUTION.md) — distribution
-- [RFC-003e](https://github.com/dstric-aqueduct/splice/blob/main/docs/RFC-003e-TESTING.md) — testing
-
-`shared/kicad-detect.json` is the single source of truth for connector-detection regexes; the same file is consumed by Splice CAD's in-browser file-upload importer via a git submodule.
 
 ## License
 
