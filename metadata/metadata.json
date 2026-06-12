@@ -22,9 +22,9 @@
       "kicad_version": "9.0",
       "kicad_version_max": "11.99",
       "download_url": "https://github.com/splice-cad/splice-kicad-plugin/releases/download/v0.0.1/splice-kicad-plugin-0.0.1.zip",
-      "download_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-      "download_size": 0,
-      "install_size": 0
+      "download_sha256": "2d0a9563d5b5fbdaaae144e14c6c77d46aa2b40fd9b5f0c4f817c75bb53a6e00",
+      "download_size": 45922,
+      "install_size": 127525
     }
   ]
 }
