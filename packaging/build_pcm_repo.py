@@ -121,8 +121,70 @@ def build(
     }
     (out / "repository.json").write_text(json.dumps(repository, indent=2) + "\n")
 
+    # 5) index.html — a friendly landing page so the Pages root isn't a bare 404.
+    (out / "index.html").write_text(_index_html(pkg, f"{base_url}/repository.json"))
+
     print(f"wrote PCM repo files to {out}/ for v{version}")
     print(f"  add-repository URL: {base_url}/repository.json")
+
+
+def _index_html(pkg: dict, add_url: str) -> str:
+    """A small self-contained landing page for the PCM repository root."""
+    name = pkg.get("name", "Splice CAD")
+    desc = pkg.get("description", "")
+    res = pkg.get("resources", {})
+    repo = res.get("repository", "https://github.com/splice-cad/splice-kicad-plugin")
+    docs = res.get("documentation", "https://splice-cad.com")
+    home = res.get("homepage", "https://splice-cad.com")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{name} — KiCad Plugin Repository</title>
+<style>
+  :root {{ color-scheme: dark; }}
+  body {{ margin:0; background:#1e1e1e; color:rgba(255,255,255,.87);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }}
+  main {{ max-width:680px; margin:0 auto; padding:48px 24px; }}
+  h1 {{ font-size:28px; margin:0 0 8px; }}
+  p.lead {{ color:rgba(255,255,255,.6); margin-top:0; }}
+  h2 {{ font-size:18px; margin:32px 0 8px; }}
+  code,kbd {{ background:#2a2a2a; border:1px solid rgba(255,255,255,.1);
+    border-radius:4px; padding:2px 6px; font-size:14px; }}
+  .url {{ display:block; background:#2a2a2a; border:1px solid rgba(255,255,255,.15);
+    border-radius:6px; padding:12px 14px; margin:8px 0 4px; font-family:ui-monospace,monospace;
+    font-size:14px; word-break:break-all; user-select:all; }}
+  ol {{ padding-left:20px; }} li {{ margin:6px 0; }}
+  a {{ color:#5aa1ff; }}
+  footer {{ margin-top:40px; padding-top:16px; border-top:1px solid rgba(255,255,255,.1);
+    color:rgba(255,255,255,.4); font-size:14px; }}
+</style>
+</head>
+<body><main>
+  <h1>{name}</h1>
+  <p class="lead">{desc}</p>
+
+  <h2>Install in KiCad</h2>
+  <p>Add this repository in KiCad's <strong>Plugin and Content Manager</strong>:</p>
+  <span class="url">{add_url}</span>
+  <ol>
+    <li>KiCad &rarr; <strong>Plugin and Content Manager</strong> &rarr; <strong>Manage</strong> &rarr; <strong>Repositories</strong>.</li>
+    <li>Add the URL above (name it "Splice CAD"), then select it in the repository dropdown.</li>
+    <li>Choose <strong>{name}</strong> &rarr; <strong>Install</strong> &rarr; <strong>Apply Pending Changes</strong>.</li>
+    <li>In the PCB Editor: <kbd>Tools &rarr; External Plugins &rarr; Export to Splice CAD</kbd>.</li>
+  </ol>
+  <p>Or download the <code>.zip</code> from <a href="{repo}/releases">Releases</a> and use
+     <strong>Install from File</strong>.</p>
+
+  <footer>
+    <a href="{docs}">Documentation</a> &nbsp;·&nbsp;
+    <a href="{repo}">GitHub</a> &nbsp;·&nbsp;
+    <a href="{home}">splice-cad.com</a>
+  </footer>
+</main></body>
+</html>
+"""
 
 
 def main(argv: list[str] | None = None) -> int:

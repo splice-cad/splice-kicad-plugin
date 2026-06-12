@@ -63,8 +63,20 @@ jobs:
             exit 1
           fi
 
-      - name: Build PCM zip
+      - name: Build PCM zip (tag release)
+        if: github.event_name == 'push'
         run: python packaging/build_pcm.py --version "$VERSION" --output dist
+
+      # Manual runs republish Pages for an EXISTING release — download the
+      # already-published zip instead of rebuilding, so its sha256 (and thus
+      # the PCM metadata) stays identical to the live release artifact.
+      - name: Download published zip (manual Pages republish)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          gh release download "v$VERSION" --pattern 'splice-kicad-plugin-*.zip' --dir dist
 
       - name: Generate release metadata + self-hosted PCM repo
         run: |
@@ -99,7 +111,6 @@ jobs:
 
   deploy-pages:
     needs: build
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
