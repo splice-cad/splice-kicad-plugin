@@ -37,18 +37,17 @@ from ..client.desktop_handoff import (
     select_target,
 )
 from ..client.splice_api import SpliceClient, WorkingPlanResponse
-from ..config import Config, config_path
+from ..config import Config
 from ..detect.connectors import (
     ExtractedConnector,
     apply_netlist,
     extract_connectors_from_pcb,
 )
-from ..errors import ConfigLoadError, NetworkError, SpliceError
+from ..errors import ConfigLoadError, SpliceError
 from ..parser.netlist import KicadNetlist, parse_kicad_netlist
 from ..parser.pcb import KicadPcbData, parse_kicad_pcb
 from ..version import __version__
 from .settings_dialog import open_settings_dialog
-
 
 # ---------------------------------------------------------------------------
 # Pure-Python helpers (testable outside KiCad)
@@ -68,7 +67,7 @@ def _summarize_board(board_path: Path, config: Config | None = None) -> str:
     text = board_path.read_text(encoding="utf-8")
     try:
         pcb = parse_kicad_pcb(text)
-    except Exception as e:  # noqa: BLE001 — surface anything to the user
+    except Exception as e:
         return f"Failed to parse {board_path}:\n{type(e).__name__}: {e}"
 
     cfg = config or Config()
@@ -83,9 +82,7 @@ def _summarize_board(board_path: Path, config: Config | None = None) -> str:
 
     plan = build_plan_data(connectors, project_name=board_path.stem)
 
-    header = _build_summary_header(
-        board_path, pcb, connectors, netlist_status, plan, cfg
-    )
+    header = _build_summary_header(board_path, pcb, connectors, netlist_status, plan, cfg)
     if connectors:
         body = _format_connector_list(connectors)
     else:
@@ -207,7 +204,7 @@ def _load_netlist(board_path: Path) -> tuple[KicadNetlist | None, str]:
         )
     try:
         netlist = parse_kicad_netlist(net_path.read_text(encoding="utf-8"))
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         return (
             None,
             f"Netlist: {net_path}\n  Failed to parse: {type(e).__name__}: {e}",
@@ -233,7 +230,7 @@ def _post_with_fallback(
     if config.prefer_desktop_when_running:
         try:
             target = select_target()
-        except Exception as e:  # noqa: BLE001 — never block the export
+        except Exception as e:
             print(f"[splice] desktop probe failed: {e}", file=sys.stderr)
             target = None
 
@@ -286,11 +283,7 @@ def _format_success_body(
     else:
         header = "✓ Plan sent to Splice CAD"
         server_line = f"  Server : {config.base_url}\n"
-        open_section = (
-            f"\nOpen in Splice CAD:\n  {result.open_url}\n"
-            if result.open_url
-            else ""
-        )
+        open_section = f"\nOpen in Splice CAD:\n  {result.open_url}\n" if result.open_url else ""
 
     return (
         f"{header}\n\n"
@@ -363,7 +356,7 @@ if pcbnew is not None:
 
     _MONO_FONT_SIZE = 12
 
-    def _make_text_dialog(title: str, body: str) -> "wx.Dialog":
+    def _make_text_dialog(title: str, body: str) -> wx.Dialog:
         """Build a resizable, scrollable, monospace dialog. Buttons are added
         by the caller."""
         assert wx is not None
@@ -527,9 +520,7 @@ if pcbnew is not None:
         btn_row.Add(cancel_btn, 0, wx.RIGHT, 8)
         send_btn = None
         if can_send:
-            send_btn = wx.Button(
-                dlg, wx.ID_OK, f"Send to Splice CAD ({len(connectors)})"
-            )
+            send_btn = wx.Button(dlg, wx.ID_OK, f"Send to Splice CAD ({len(connectors)})")
             btn_row.Add(send_btn, 0)
             dlg.SetAffirmativeId(wx.ID_OK)
             send_btn.SetDefault()
@@ -542,20 +533,18 @@ if pcbnew is not None:
 
         # ---- Selection-change wiring ----
         def update_selection_state() -> None:
-            checked = sum(
-                1 for i in range(check_list.GetCount()) if check_list.IsChecked(i)
-            )
+            checked = sum(1 for i in range(check_list.GetCount()) if check_list.IsChecked(i))
             sel_count_label.SetLabel(f"{checked} of {len(connectors)} selected")
             if send_btn is not None:
                 send_btn.Enable(checked > 0)
                 send_btn.SetLabel(f"Send to Splice CAD ({checked})")
 
-        def on_select_all(_evt) -> None:  # noqa: ANN001
+        def on_select_all(_evt) -> None:
             for i in range(check_list.GetCount()):
                 check_list.Check(i, True)
             update_selection_state()
 
-        def on_deselect_all(_evt) -> None:  # noqa: ANN001
+        def on_deselect_all(_evt) -> None:
             for i in range(check_list.GetCount()):
                 check_list.Check(i, False)
             update_selection_state()
@@ -587,13 +576,11 @@ if pcbnew is not None:
         def defaults(self) -> None:
             self.name = "Export to Splice CAD"
             self.category = "Splice CAD"
-            self.description = (
-                "Export wired cable-harness plans from KiCad to Splice CAD."
-            )
+            self.description = "Export wired cable-harness plans from KiCad to Splice CAD."
             self.show_toolbar_button = True
             self.icon_file_name = _ICON_PATH
 
-        def Run(self) -> None:
+        def Run(self) -> None:  # noqa: N802 — KiCad ActionPlugin API requires this name
             assert wx is not None
             try:
                 board = pcbnew.GetBoard()
@@ -620,7 +607,7 @@ if pcbnew is not None:
                 if config.prefer_desktop_when_running:
                     try:
                         desktop_target = select_target()
-                    except Exception:  # noqa: BLE001
+                    except Exception:
                         desktop_target = None
 
                 # If neither path is available — desktop not running AND no
@@ -633,7 +620,7 @@ if pcbnew is not None:
                     if config.prefer_desktop_when_running:
                         try:
                             desktop_target = select_target()
-                        except Exception:  # noqa: BLE001
+                        except Exception:
                             desktop_target = None
                     if desktop_target is None and not config.is_configured:
                         return
@@ -712,9 +699,7 @@ if pcbnew is not None:
                 node_count = len(plan["nodes"])
                 pin_count = sum(len(n["pins"]) for n in plan["nodes"].values())
                 excluded = len(connectors) - len(sent_connectors)
-                excluded_line = (
-                    f"  Excluded: {excluded} (deselected)\n" if excluded > 0 else ""
-                )
+                excluded_line = f"  Excluded: {excluded} (deselected)\n" if excluded > 0 else ""
                 _show_long_dialog(
                     "Splice CAD — Export",
                     _format_success_body(
@@ -726,7 +711,7 @@ if pcbnew is not None:
                         excluded_line=excluded_line,
                     ),
                 )
-            except Exception as e:  # noqa: BLE001 — surface any unexpected error
+            except Exception as e:
                 wx.MessageBox(
                     f"Splice CAD plugin error: {type(e).__name__}: {e}",
                     "Splice CAD — Export",
@@ -741,17 +726,15 @@ if pcbnew is not None:
         def defaults(self) -> None:
             self.name = "Splice CAD — Settings"
             self.category = "Splice CAD"
-            self.description = (
-                "Configure API key and server URL for the Splice CAD plugin."
-            )
+            self.description = "Configure API key and server URL for the Splice CAD plugin."
             self.show_toolbar_button = False
             self.icon_file_name = _ICON_PATH
 
-        def Run(self) -> None:
+        def Run(self) -> None:  # noqa: N802 — KiCad ActionPlugin API requires this name
             assert wx is not None
             try:
                 open_settings_dialog()
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:
                 wx.MessageBox(
                     f"Splice CAD settings error: {type(e).__name__}: {e}",
                     "Splice CAD — Settings",

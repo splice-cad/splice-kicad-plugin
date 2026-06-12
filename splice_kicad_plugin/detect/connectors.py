@@ -20,8 +20,8 @@ synthesizing conductor records between them.
 from __future__ import annotations  # PEP 563 — Py 3.9 compat
 
 import re
-from dataclasses import dataclass, field
-from typing import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 
 from ..parser.netlist import KicadNetlist
 from ..parser.pcb import KicadFootprint, KicadPad, KicadPcbData
@@ -206,18 +206,14 @@ def _filter_signal_pads(pads: tuple[KicadPad, ...]) -> list[KicadPad]:
     ]
 
 
-def _first_non_empty_strict(
-    props: Mapping[str, str], keys: Iterable[str]
-) -> str | None:
+def _first_non_empty_strict(props: Mapping[str, str], keys: Iterable[str]) -> str | None:
     """Match props against an explicit normalized synonym list (strict mode).
 
     Returns the value of the first matching key, walking ``keys`` in order.
     """
     if not props:
         return None
-    normalized: dict[str, str] = {
-        _normalize_property_key(k): v for k, v in props.items()
-    }
+    normalized: dict[str, str] = {_normalize_property_key(k): v for k, v in props.items()}
     for k in keys:
         v = normalized.get(k)
         if v:
@@ -225,9 +221,7 @@ def _first_non_empty_strict(
     return None
 
 
-def _first_non_empty_fuzzy(
-    props: Mapping[str, str], kind: str
-) -> str | None:
+def _first_non_empty_fuzzy(props: Mapping[str, str], kind: str) -> str | None:
     """Token-classify each prop key, return first value matching ``kind``.
 
     ``kind`` is ``'manufacturer'`` or ``'mpn'``. See ``_classify_property_key``.

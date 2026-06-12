@@ -6,16 +6,14 @@ only ``_summarize_board`` and config-status formatting are exercised here.
 
 from pathlib import Path
 
-import pytest
-
 from splice_kicad_plugin.config import Config
+from splice_kicad_plugin.detect.connectors import ExtractedConnector, ExtractedPin
 from splice_kicad_plugin.ui.action_plugin import (
     _build_plan_for_board,
     _connector_summary_line,
     _project_name_for,
     _summarize_board,
 )
-from splice_kicad_plugin.detect.connectors import ExtractedConnector, ExtractedPin
 
 
 def test_summarize_board_lists_connectors(tmp_path: Path) -> None:
@@ -242,7 +240,7 @@ def test_build_plan_for_board_unknown_ref_in_filter_excludes_silently(
 ) -> None:
     board = tmp_path / "design.kicad_pcb"
     _two_connector_board(board)
-    _, connectors, plan = _build_plan_for_board(
+    _, connectors, _plan = _build_plan_for_board(
         board,
         selected_refs={"J1", "J999"},  # J999 doesn't exist
     )
@@ -257,9 +255,12 @@ def test_build_plan_for_board_unknown_ref_in_filter_excludes_silently(
 
 def test_connector_summary_line_minimal() -> None:
     c = ExtractedConnector(
-        reference="J1", footprint="x", value="",
+        reference="J1",
+        footprint="x",
+        value="",
         pins=[ExtractedPin(number="1"), ExtractedPin(number="2")],
-        x=0.0, y=0.0,
+        x=0.0,
+        y=0.0,
     )
     line = _connector_summary_line(c)
     assert line == "J1  (2 pins)"
@@ -267,10 +268,16 @@ def test_connector_summary_line_minimal() -> None:
 
 def test_connector_summary_line_full() -> None:
     c = ExtractedConnector(
-        reference="J1", footprint="x", value="",
+        reference="J1",
+        footprint="x",
+        value="",
         pins=[ExtractedPin(number="1")],
-        x=0.0, y=0.0,
-        manufacturer="JST", series="PH", mpn="S2B-PH-K", pitch_mm=2.0,
+        x=0.0,
+        y=0.0,
+        manufacturer="JST",
+        series="PH",
+        mpn="S2B-PH-K",
+        pitch_mm=2.0,
     )
     line = _connector_summary_line(c)
     assert "J1" in line and "1 pins" in line

@@ -15,7 +15,7 @@ Splice's in-app Auto-arrange (ELK) can re-flow as needed.
 
 from __future__ import annotations  # PEP 563 — Py 3.9 compat
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from ..detect.connectors import ExtractedConnector, ExtractedPin
 from ..version import SCHEMA_VERSION, __version__

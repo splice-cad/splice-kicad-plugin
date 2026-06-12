@@ -13,7 +13,6 @@ from splice_kicad_plugin.build.ids import (
     stable_pin_id,
 )
 
-
 # ---------------------------------------------------------------------------
 # Determinism
 # ---------------------------------------------------------------------------
@@ -51,23 +50,20 @@ _HEX20 = re.compile(r"^[a-f0-9]{20}$")
 def test_stable_node_id_format() -> None:
     nid = stable_node_id("J1")
     assert nid.startswith("comp_")
-    assert _HEX20.match(nid[len("comp_"):])
+    assert _HEX20.match(nid[len("comp_") :])
 
 
 def test_stable_pin_id_format() -> None:
     pid = stable_pin_id("J1", "1")
     assert pid.startswith("pin_")
-    assert _HEX20.match(pid[len("pin_"):])
+    assert _HEX20.match(pid[len("pin_") :])
 
 
 def test_node_and_pin_namespacing_dont_collide() -> None:
     # Same input string would collide if node+pin shared a namespace prefix.
     # We use different namespacing strings ("node:..." vs "pin:..."), so they
     # produce different hex bodies.
-    assert (
-        stable_node_id("J1")[len("comp_"):]
-        != stable_pin_id("J1", "1")[len("pin_"):]
-    )
+    assert stable_node_id("J1")[len("comp_") :] != stable_pin_id("J1", "1")[len("pin_") :]
 
 
 # ---------------------------------------------------------------------------

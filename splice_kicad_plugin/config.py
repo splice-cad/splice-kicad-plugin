@@ -77,7 +77,7 @@ class Config:
         return bool(self.api_key)
 
     @classmethod
-    def load(cls) -> "Config":
+    def load(cls) -> Config:
         """Load config from :func:`config_path` or return defaults if absent.
 
         Raises :class:`ConfigLoadError` only if the file exists but can't be
@@ -106,9 +106,7 @@ class Config:
         return cls(
             api_key=data.get("api_key") or None,
             base_url=data.get("base_url") or DEFAULT_BASE_URL,
-            fuzzy_property_matching=(
-                bool(fuzzy) if fuzzy is not None else True
-            ),
+            fuzzy_property_matching=(bool(fuzzy) if fuzzy is not None else True),
             prefer_desktop_when_running=(
                 bool(prefer_desktop) if prefer_desktop is not None else True
             ),

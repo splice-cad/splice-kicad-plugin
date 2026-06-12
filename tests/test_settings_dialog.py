@@ -10,7 +10,6 @@ from splice_kicad_plugin.ui.settings_dialog import (
     validate_config,
 )
 
-
 # ---------------------------------------------------------------------------
 # Required fields
 # ---------------------------------------------------------------------------
@@ -43,7 +42,7 @@ def test_api_key_must_start_with_splice_underscore() -> None:
 
 def test_api_key_too_short_rejected() -> None:
     # Token portion under 8 chars.
-    ok, err = validate_config("splice_abc", "https://splice-cad.com")
+    ok, _err = validate_config("splice_abc", "https://splice-cad.com")
     assert not ok
 
 

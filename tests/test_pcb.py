@@ -14,7 +14,6 @@ from splice_kicad_plugin.parser.pcb import (
     parse_kicad_pcb,
 )
 
-
 # ---------------------------------------------------------------------------
 # Top-level form
 # ---------------------------------------------------------------------------
@@ -22,7 +21,7 @@ from splice_kicad_plugin.parser.pcb import (
 
 def test_rejects_non_pcb_root() -> None:
     with pytest.raises(InvalidKicadFileError):
-        parse_kicad_pcb('(kicad_sch (version 20240108))')
+        parse_kicad_pcb("(kicad_sch (version 20240108))")
 
 
 def test_rejects_empty_input() -> None:
@@ -214,7 +213,8 @@ def test_multiple_footprints_in_order() -> None:
     (kicad_pcb (version 20240108)
       (footprint "Resistor_SMD:R_0402" (property "Reference" "R1") (property "Value" "10k"))
       (footprint "Resistor_SMD:R_0402" (property "Reference" "R2") (property "Value" "1k"))
-      (footprint "Connector_JST:JST_PH_S2B-PH-K" (property "Reference" "J1") (property "Value" "Power"))
+      (footprint "Connector_JST:JST_PH_S2B-PH-K"
+        (property "Reference" "J1") (property "Value" "Power"))
     )
     """
     pcb = parse_kicad_pcb(src)

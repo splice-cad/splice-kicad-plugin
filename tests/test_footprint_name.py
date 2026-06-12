@@ -12,7 +12,6 @@ from splice_kicad_plugin.detect.footprint_name import (
     parse_footprint_name,
 )
 
-
 # ---------------------------------------------------------------------------
 # Empty / sparse input
 # ---------------------------------------------------------------------------
@@ -99,15 +98,11 @@ def test_mounting_style_smd() -> None:
 
 
 def test_mounting_style_right_angle() -> None:
-    assert (
-        parse_footprint_name("PinHeader_1x04_P2.54mm_RightAngle").mounting_style == "Right-Angle"
-    )
+    assert parse_footprint_name("PinHeader_1x04_P2.54mm_RightAngle").mounting_style == "Right-Angle"
 
 
 def test_mounting_style_horizontal_capitalizes() -> None:
-    assert (
-        parse_footprint_name("PinHeader_1x04_P2.54mm_Horizontal").mounting_style == "Horizontal"
-    )
+    assert parse_footprint_name("PinHeader_1x04_P2.54mm_Horizontal").mounting_style == "Horizontal"
 
 
 # ---------------------------------------------------------------------------

@@ -132,7 +132,9 @@ if wx is not None:
             # API key
             sizer.Add(
                 wx.StaticText(self, label="API key (optional if using desktop)"),
-                0, wx.LEFT | wx.RIGHT, 12,
+                0,
+                wx.LEFT | wx.RIGHT,
+                12,
             )
             api_row = wx.BoxSizer(wx.HORIZONTAL)
             self._api_field = wx.TextCtrl(
@@ -147,9 +149,7 @@ if wx is not None:
             sizer.Add(api_row, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
 
             link_btn = wx.Button(self, label="Get API key on splice-cad.com…")
-            link_btn.Bind(
-                wx.EVT_BUTTON, lambda evt: webbrowser.open(_GET_API_KEY_URL)
-            )
+            link_btn.Bind(wx.EVT_BUTTON, lambda evt: webbrowser.open(_GET_API_KEY_URL))
             sizer.Add(link_btn, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 12)
 
             # Server URL
@@ -253,7 +253,7 @@ if wx is not None:
 
         # --- Event handlers --------------------------------------------
 
-        def _on_toggle_show(self, evt) -> None:  # noqa: ANN001
+        def _on_toggle_show(self, evt) -> None:
             """macOS / GTK don't allow toggling TE_PASSWORD live, so we
             recreate the TextCtrl with the new style."""
             assert wx is not None
@@ -273,7 +273,7 @@ if wx is not None:
             self._api_field = new_field
             self.Layout()
 
-        def _on_test(self, evt) -> None:  # noqa: ANN001
+        def _on_test(self, evt) -> None:
             assert wx is not None
             api_key = self._api_field.GetValue().strip()
             base_url = self._url_field.GetValue().strip()
@@ -297,9 +297,7 @@ if wx is not None:
                 client.test_auth()
                 self._set_status("✓ Connected — API key is valid.", _COLOR_OK)
             except AuthenticationError:
-                self._set_status(
-                    "✗ Auth rejected (401). Check the key.", _COLOR_ERR
-                )
+                self._set_status("✗ Auth rejected (401). Check the key.", _COLOR_ERR)
             except NetworkError as e:
                 self._set_status(f"✗ Cannot reach {base_url}\n  {e}", _COLOR_ERR)
             except SpliceError as e:
@@ -307,7 +305,7 @@ if wx is not None:
             finally:
                 self._test_btn.Enable()
 
-        def _set_status(self, text: str, color) -> None:  # noqa: ANN001
+        def _set_status(self, text: str, color) -> None:
             self._status.SetLabel(text)
             self._status.SetForegroundColour(color)
             self._status.Refresh()

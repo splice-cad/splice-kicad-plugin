@@ -11,7 +11,7 @@ import gzip
 import io
 import json
 import urllib.error
-from typing import Mapping
+from collections.abc import Mapping
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -40,7 +40,9 @@ def _mock_response(status: int, body: Mapping | None = None) -> MagicMock:
     return resp
 
 
-def _http_error(status: int, body: str = "", retry_after: str | None = None) -> urllib.error.HTTPError:
+def _http_error(
+    status: int, body: str = "", retry_after: str | None = None
+) -> urllib.error.HTTPError:
     headers: dict = {}
     if retry_after is not None:
         headers["Retry-After"] = retry_after
@@ -211,7 +213,9 @@ def test_413_raises_plan_too_large() -> None:
 
 def test_429_raises_quota_exceeded_with_retry_after() -> None:
     client = SpliceClient(base_url="http://localhost:5002", api_key="x")
-    with patch("urllib.request.urlopen", side_effect=_http_error(429, "rate limited", retry_after="120")):
+    with patch(
+        "urllib.request.urlopen", side_effect=_http_error(429, "rate limited", retry_after="120")
+    ):
         with pytest.raises(QuotaExceededError) as e:
             client.post_working_plan({"nodes": {}})
     assert e.value.retry_after_seconds == 120
@@ -219,7 +223,10 @@ def test_429_raises_quota_exceeded_with_retry_after() -> None:
 
 def test_429_with_invalid_retry_after_uses_default() -> None:
     client = SpliceClient(base_url="http://localhost:5002", api_key="x")
-    with patch("urllib.request.urlopen", side_effect=_http_error(429, "rate limited", retry_after="not-a-number")):
+    with patch(
+        "urllib.request.urlopen",
+        side_effect=_http_error(429, "rate limited", retry_after="not-a-number"),
+    ):
         with pytest.raises(QuotaExceededError) as e:
             client.post_working_plan({"nodes": {}})
     assert e.value.retry_after_seconds == 60  # fallback default
@@ -260,9 +267,7 @@ def test_timeout_raises_network_error() -> None:
 
 def test_test_auth_success() -> None:
     client = SpliceClient(base_url="http://localhost:5002", api_key="x")
-    fake_resp = _mock_response(
-        200, {"ok": True, "user_id": "abc", "email": "test@example.com"}
-    )
+    fake_resp = _mock_response(200, {"ok": True, "user_id": "abc", "email": "test@example.com"})
     with patch("urllib.request.urlopen", return_value=fake_resp) as urlopen:
         result = client.test_auth()
     assert result["ok"] is True

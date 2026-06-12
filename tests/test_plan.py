@@ -170,14 +170,16 @@ def test_first_seven_connectors_grid() -> None:
     plan = build_plan_data([_conn(f"J{i}") for i in range(1, 8)])
     # 6 columns of 240 px each, 180 px row height.
     expected = [
-        (0, 0), (240, 0), (480, 0), (720, 0), (960, 0), (1200, 0),
+        (0, 0),
+        (240, 0),
+        (480, 0),
+        (720, 0),
+        (960, 0),
+        (1200, 0),
         (0, 180),
     ]
     # Iterate in insertion order — Python 3.7+ dicts preserve it.
-    actual = [
-        (n["position"]["x"], n["position"]["y"])
-        for n in plan["nodes"].values()
-    ]
+    actual = [(n["position"]["x"], n["position"]["y"]) for n in plan["nodes"].values()]
     assert actual == expected
 
 
@@ -305,8 +307,7 @@ def test_node_bom_entry_id_references_bom_entry() -> None:
 
 
 def test_bom_entries_stable_across_runs() -> None:
-    conn = _conn("J1", manufacturer="Molex", mpn="0430450413",
-                 pins=[("1", "+5V"), ("2", "GND")])
+    conn = _conn("J1", manufacturer="Molex", mpn="0430450413", pins=[("1", "+5V"), ("2", "GND")])
     a = build_plan_data([conn])
     b = build_plan_data([conn])
     assert [e["id"] for e in a["bom"]] == [e["id"] for e in b["bom"]]

@@ -11,7 +11,6 @@ from splice_kicad_plugin.parser.netlist import (
     parse_kicad_netlist,
 )
 
-
 # Realistic KiCad netlist fragment — two connectors, three nets.
 SAMPLE_NETLIST = """
 (export (version "E")
@@ -57,7 +56,7 @@ SAMPLE_NETLIST = """
 
 def test_rejects_non_export_root() -> None:
     with pytest.raises(NetlistFormatError):
-        parse_kicad_netlist('(kicad_pcb (version 20240108))')
+        parse_kicad_netlist("(kicad_pcb (version 20240108))")
 
 
 def test_rejects_empty_input() -> None:

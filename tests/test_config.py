@@ -59,9 +59,7 @@ def test_load_missing_file_returns_defaults(tmp_config_path: Path) -> None:
 
 def test_load_full_config(tmp_config_path: Path) -> None:
     tmp_config_path.write_text(
-        json.dumps(
-            {"api_key": "splice_abcd", "base_url": "http://localhost:5002"}
-        ),
+        json.dumps({"api_key": "splice_abcd", "base_url": "http://localhost:5002"}),
         encoding="utf-8",
     )
     cfg = Config.load()
@@ -132,9 +130,8 @@ def test_fuzzy_property_matching_legacy_config_defaults_true(
 ) -> None:
     # Older config files won't have the field; default to True.
     import json
-    tmp_config_path.write_text(
-        json.dumps({"api_key": "splice_old"}), encoding="utf-8"
-    )
+
+    tmp_config_path.write_text(json.dumps({"api_key": "splice_old"}), encoding="utf-8")
     loaded = Config.load()
     assert loaded.fuzzy_property_matching is True
 
@@ -152,9 +149,8 @@ def test_prefer_desktop_when_running_round_trip(tmp_config_path: Path) -> None:
 
 def test_prefer_desktop_when_running_legacy_config(tmp_config_path: Path) -> None:
     import json
-    tmp_config_path.write_text(
-        json.dumps({"api_key": "splice_old"}), encoding="utf-8"
-    )
+
+    tmp_config_path.write_text(json.dumps({"api_key": "splice_old"}), encoding="utf-8")
     loaded = Config.load()
     assert loaded.prefer_desktop_when_running is True
 
@@ -181,6 +177,7 @@ def test_connector_prefixes_empty_list_serializes_as_none(
     # Defensive: empty list shouldn't round-trip as empty — should normalize
     # to None so the extractor falls back to the canonical defaults.
     import json
+
     tmp_config_path.write_text(
         json.dumps({"api_key": "x", "connector_prefixes": []}),
         encoding="utf-8",
@@ -191,6 +188,7 @@ def test_connector_prefixes_empty_list_serializes_as_none(
 
 def test_connector_prefixes_normalizes_case(tmp_config_path: Path) -> None:
     import json
+
     tmp_config_path.write_text(
         json.dumps({"api_key": "x", "connector_prefixes": [" j ", "Cn"]}),
         encoding="utf-8",
@@ -205,6 +203,7 @@ def test_connector_prefixes_save_omits_field_when_none(
 ) -> None:
     Config(api_key="x", connector_prefixes=None).save()
     import json
+
     payload = json.loads(tmp_config_path.read_text(encoding="utf-8"))
     # Field is omitted when None so legacy loaders don't see surprising data.
     assert "connector_prefixes" not in payload

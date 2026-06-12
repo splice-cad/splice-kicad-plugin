@@ -10,8 +10,8 @@ are part of the PCB layout and don't matter for harness extraction.
 
 from __future__ import annotations  # PEP 563 — Py 3.9 compat
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 from ..errors import InvalidKicadFileError
 from .sexpr import (

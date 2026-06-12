@@ -12,8 +12,8 @@ separate follow-up — that one uses XML rather than s-expressions.
 
 from __future__ import annotations  # PEP 563 — Py 3.9 compat
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Mapping
 
 from ..errors import NetlistFormatError
 from .sexpr import (
@@ -76,9 +76,7 @@ def parse_kicad_netlist(content: str) -> KicadNetlist:
     """
     expr = parse_sexpr(content)
     if not is_list(expr, "export"):
-        raise NetlistFormatError(
-            "Invalid KiCad netlist file - expected (export ...) at top level"
-        )
+        raise NetlistFormatError("Invalid KiCad netlist file - expected (export ...) at top level")
     assert isinstance(expr, list)  # narrowed
 
     version = ""
@@ -135,9 +133,7 @@ def _parse_components(expr: list[SExpr]) -> list[KicadNetlistComponent]:
                 properties[get_string(name_node[1])] = get_string(val_node[1])
 
         out.append(
-            KicadNetlistComponent(
-                ref=ref, value=value, footprint=footprint, properties=properties
-            )
+            KicadNetlistComponent(ref=ref, value=value, footprint=footprint, properties=properties)
         )
 
     return out
@@ -168,12 +164,7 @@ def _parse_nets(
         for node_expr in find_all_children(net_expr, "node"):
             ref_node = find_child(node_expr, "ref")
             pin_node = find_child(node_expr, "pin")
-            if (
-                ref_node is None
-                or pin_node is None
-                or len(ref_node) < 2
-                or len(pin_node) < 2
-            ):
+            if ref_node is None or pin_node is None or len(ref_node) < 2 or len(pin_node) < 2:
                 continue
             ref = get_string(ref_node[1])
             pin = get_string(pin_node[1])

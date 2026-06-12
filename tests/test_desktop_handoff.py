@@ -11,8 +11,8 @@ import gzip
 import io
 import json
 import urllib.error
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -29,16 +29,13 @@ from splice_kicad_plugin.errors import (
     SpliceServerError,
 )
 
-
 # ---------------------------------------------------------------------------
 # Discovery file paths
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture
-def fake_config_dir(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Iterator[Path]:
+def fake_config_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     """Redirect discovery files into a tmp dir."""
     cfg = tmp_path / "com.splice.desktop"
     cfg.mkdir()
@@ -151,9 +148,7 @@ def test_select_target_unsupported_protocol_returns_none(
     fake_config_dir: Path,
 ) -> None:
     _write_discovery(fake_config_dir)
-    fake = _mock_health_response(
-        {"service": "splice-desktop", "protocol": 999, "version": "9.9.9"}
-    )
+    fake = _mock_health_response({"service": "splice-desktop", "protocol": 999, "version": "9.9.9"})
     with patch("urllib.request.urlopen", return_value=fake):
         assert select_target() is None
 
@@ -183,15 +178,9 @@ def test_select_target_dev_file_preferred_over_release(
     # Both files present — dev should be checked first; we set dev to a dead
     # PID so it gets skipped, but the test verifies the order: probe results
     # tell us which one was picked.
-    _write_discovery(
-        fake_config_dir, name="desktop.dev.json", port=11111, secret="dev"
-    )
-    _write_discovery(
-        fake_config_dir, name="desktop.json", port=22222, secret="release"
-    )
-    fake = _mock_health_response(
-        {"service": "splice-desktop", "protocol": 1, "version": "x"}
-    )
+    _write_discovery(fake_config_dir, name="desktop.dev.json", port=11111, secret="dev")
+    _write_discovery(fake_config_dir, name="desktop.json", port=22222, secret="release")
+    fake = _mock_health_response({"service": "splice-desktop", "protocol": 1, "version": "x"})
     with patch("urllib.request.urlopen", return_value=fake):
         target = select_target()
     assert target is not None
@@ -292,9 +281,7 @@ def test_post_to_desktop_401_raises_auth_error() -> None:
 
 def test_post_to_desktop_500_raises_server_error() -> None:
     target = _target()
-    with patch(
-        "urllib.request.urlopen", side_effect=_http_error(500, "internal")
-    ):
+    with patch("urllib.request.urlopen", side_effect=_http_error(500, "internal")):
         with pytest.raises(SpliceServerError) as e:
             post_to_desktop(target, {"nodes": {}})
     assert e.value.status == 500

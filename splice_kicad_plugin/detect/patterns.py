@@ -27,9 +27,7 @@ FOOTPRINT_PATTERNS: tuple[re.Pattern, ...] = tuple(
     re.compile(p, re.I) for p in _CFG["footprintPatterns"]
 )
 
-LIB_ID_PATTERNS: tuple[re.Pattern, ...] = tuple(
-    re.compile(p, re.I) for p in _CFG["libIdPatterns"]
-)
+LIB_ID_PATTERNS: tuple[re.Pattern, ...] = tuple(re.compile(p, re.I) for p in _CFG["libIdPatterns"])
 
 EXCLUDED_PAD_TYPES: frozenset = frozenset(_CFG["excludedPadTypes"])
 

@@ -9,7 +9,7 @@ When the desktop app is running it writes a discovery file to its OS-canonical
    compatibility.
 4. POSTs the plan to the listener using ``X-Splice-Desktop-Secret`` auth.
 
-Any failure at steps 1–3 returns ``None`` from :func:`select_target`, signaling
+Any failure at steps 1-3 returns ``None`` from :func:`select_target`, signaling
 "desktop not reachable — fall back to web". Step 4 raises a typed
 ``SpliceError`` subclass on failure; the caller decides whether to fall back.
 
@@ -32,14 +32,13 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
 
 from ..errors import (
     AuthenticationError,
     NetworkError,
-    SpliceError,
     SpliceServerError,
 )
 from ..version import __version__
@@ -266,7 +265,7 @@ def post_to_desktop(
     except urllib.error.HTTPError as e:
         try:
             err_body = e.read().decode("utf-8", errors="replace")
-        except Exception:  # noqa: BLE001
+        except Exception:
             err_body = ""
         if e.code == 401:
             raise AuthenticationError(
@@ -287,9 +286,9 @@ def post_to_desktop(
 
 
 __all__ = [
-    "DesktopTarget",
     "SUPPORTED_PROTOCOL_MAX",
     "SUPPORTED_PROTOCOL_MIN",
+    "DesktopTarget",
     "discovery_paths",
     "post_to_desktop",
     "select_target",

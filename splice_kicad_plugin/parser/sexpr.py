@@ -19,7 +19,7 @@ from typing import Union
 
 from ..errors import SExprParseError
 
-SExpr = Union[str, list["SExpr"]]
+SExpr = Union[str, list["SExpr"]]  # noqa: UP007 — runtime alias; `X | Y` crashes on KiCad's Py3.9
 
 
 # ---------------------------------------------------------------------------
@@ -86,7 +86,7 @@ def tokenize(text: str) -> list[str]:
 class _Cursor:
     """Mutable index into a token stream. Internal helper for ``parse_tokens``."""
 
-    __slots__ = ("tokens", "i")
+    __slots__ = ("i", "tokens")
 
     def __init__(self, tokens: list[str]) -> None:
         self.tokens = tokens

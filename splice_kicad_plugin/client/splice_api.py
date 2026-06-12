@@ -21,8 +21,8 @@ import gzip
 import json
 import urllib.error
 import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 from uuid import UUID
 
 from ..errors import (
@@ -123,9 +123,7 @@ class SpliceClient:
         - :class:`NetworkError` on connection / timeout errors
         """
         if not self.api_key:
-            raise AuthenticationError(
-                "No API key configured — set one in the plugin's config file"
-            )
+            raise AuthenticationError("No API key configured — set one in the plugin's config file")
 
         url = self._build_url("/api/plans/import")
         body: dict = {"plan_data": dict(plan_data)}
@@ -177,7 +175,7 @@ class SpliceClient:
         return f"{self.base_url.rstrip('/')}/app#/plan"
 
     @staticmethod
-    def _parse_json_response(resp) -> dict:  # noqa: ANN001 — http.client.HTTPResponse
+    def _parse_json_response(resp) -> dict:
         body = resp.read()
         if not body:
             return {}
@@ -193,7 +191,7 @@ class SpliceClient:
         try:
             body_bytes = e.read()
             body = body_bytes.decode("utf-8", errors="replace")
-        except Exception:  # noqa: BLE001
+        except Exception:
             body = ""
 
         if status == 401:

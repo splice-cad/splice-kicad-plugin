@@ -93,7 +93,7 @@ class ConfigSaveError(ConfigError):
 
 
 # IPC
-class Kicad9IpcUnavailable(SpliceError):
+class Kicad9IpcUnavailableError(SpliceError):
     """KiCad 9.x ``kipy`` IPC is not reachable; caller should fall back to CLI."""
 
 

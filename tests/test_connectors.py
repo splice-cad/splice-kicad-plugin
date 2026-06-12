@@ -1,16 +1,12 @@
 """Tests for ``splice_kicad_plugin.detect.connectors``."""
 
 from splice_kicad_plugin.detect.connectors import (
-    ExtractedConnector,
     ExtractedPin,
     apply_netlist,
     extract_connectors_from_pcb,
     is_connector_footprint,
 )
 from splice_kicad_plugin.parser.netlist import (
-    KicadNet,
-    KicadNetlist,
-    KicadNetlistNode,
     parse_kicad_netlist,
 )
 from splice_kicad_plugin.parser.pcb import (
@@ -26,10 +22,19 @@ def _fp(ref: str, footprint: str = "Connector_Generic:Conn_01x04", pads: int = 0
         reference=ref,
         footprint=footprint,
         value="",
-        x=0.0, y=0.0, rotation=0.0,
+        x=0.0,
+        y=0.0,
+        rotation=0.0,
         pads=tuple(
-            KicadPad(number=str(i + 1), type="thru_hole", shape="circle",
-                     x=0.0, y=0.0, width=1.5, height=1.5)
+            KicadPad(
+                number=str(i + 1),
+                type="thru_hole",
+                shape="circle",
+                x=0.0,
+                y=0.0,
+                width=1.5,
+                height=1.5,
+            )
             for i in range(pads)
         ),
         properties={},
@@ -233,8 +238,7 @@ def _two_connector_pcb() -> KicadPcbData:
 
 def test_apply_netlist_sets_pin_functions_from_net_names() -> None:
     pcb = _two_connector_pcb()
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (nets
             (net (code "1") (name "+5V")
@@ -249,8 +253,7 @@ def test_apply_netlist_sets_pin_functions_from_net_names() -> None:
               (node (ref "J2") (pin "4")))
           )
         )
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
 
@@ -263,15 +266,13 @@ def test_apply_netlist_sets_pin_functions_from_net_names() -> None:
 
 def test_apply_netlist_pin_without_net_keeps_function_none() -> None:
     pcb = _two_connector_pcb()
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (nets
             (net (code "1") (name "VCC") (node (ref "J1") (pin "1")))
           )
         )
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     j1 = next(c for c in connectors if c.reference == "J1")
@@ -281,9 +282,7 @@ def test_apply_netlist_pin_without_net_keeps_function_none() -> None:
 
 def test_apply_netlist_connector_not_in_netlist() -> None:
     pcb = _two_connector_pcb()
-    netlist = parse_kicad_netlist(
-        '(export (version "E") (nets))'  # empty netlist
-    )
+    netlist = parse_kicad_netlist('(export (version "E") (nets))')  # empty netlist
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     # All pins on all connectors stay function=None
@@ -293,15 +292,13 @@ def test_apply_netlist_connector_not_in_netlist() -> None:
 
 def test_apply_netlist_is_idempotent() -> None:
     pcb = _two_connector_pcb()
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (nets
             (net (code "1") (name "+5V") (node (ref "J1") (pin "1")))
           )
         )
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     apply_netlist(connectors, netlist)  # second call should be a no-op
@@ -317,16 +314,14 @@ def test_apply_netlist_is_idempotent() -> None:
 def test_apply_netlist_strips_kicad_root_slash() -> None:
     pcb = _two_connector_pcb()
     # KiCad emits leading slashes on every net even at root scope.
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (nets
             (net (code "1") (name "/+5V") (node (ref "J1") (pin "1")))
             (net (code "2") (name "/GND") (node (ref "J1") (pin "2")))
           )
         )
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     j1 = next(c for c in connectors if c.reference == "J1")
@@ -338,16 +333,14 @@ def test_apply_netlist_strips_kicad_root_slash() -> None:
 def test_apply_netlist_preserves_internal_hierarchy_slashes() -> None:
     pcb = _two_connector_pcb()
     # Hierarchical names like /CAN/CAN_H keep the inner slash.
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (nets
             (net (code "1") (name "/CAN/CAN_H") (node (ref "J1") (pin "1")))
             (net (code "2") (name "/Power/+5V") (node (ref "J1") (pin "2")))
           )
         )
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     j1 = next(c for c in connectors if c.reference == "J1")
@@ -357,6 +350,7 @@ def test_apply_netlist_preserves_internal_hierarchy_slashes() -> None:
 
 def test_normalize_net_name_function() -> None:
     from splice_kicad_plugin.detect.connectors import normalize_net_name
+
     assert normalize_net_name("/+5V") == "+5V"
     assert normalize_net_name("/CAN/CAN_H") == "CAN/CAN_H"
     assert normalize_net_name("VCC") == "VCC"  # no leading slash, untouched
@@ -429,8 +423,7 @@ def test_apply_netlist_pulls_mpn_and_mfr_from_netlist_props() -> None:
     )
     """
     pcb = parse_kicad_pcb(src)
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (components
             (comp (ref "J1")
@@ -439,8 +432,7 @@ def test_apply_netlist_pulls_mpn_and_mfr_from_netlist_props() -> None:
               (property (name "Manufacturer") (value "TE"))
               (property (name "Manufacturer_Part_Number") (value "640456-2"))))
           (nets (net (code "1") (name "VCC") (node (ref "J1") (pin "1")))))
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     assert connectors[0].manufacturer is None
     assert connectors[0].mpn is None
@@ -461,16 +453,14 @@ def test_apply_netlist_does_not_overwrite_existing_props() -> None:
     )
     """
     pcb = parse_kicad_pcb(src)
-    netlist = parse_kicad_netlist(
-        """
+    netlist = parse_kicad_netlist("""
         (export (version "E")
           (components
             (comp (ref "J1")
               (property (name "Manufacturer") (value "TE"))
               (property (name "MPN") (value "640456-2"))))
           (nets (net (code "1") (name "VCC") (node (ref "J1") (pin "1")))))
-        """
-    )
+        """)
     connectors = extract_connectors_from_pcb(pcb)
     apply_netlist(connectors, netlist)
     # PCB-set values stayed put.
@@ -625,9 +615,7 @@ def test_fuzzy_extract_picks_up_arbitrary_field_names() -> None:
         (pad "1" thru_hole circle (at 0 0) (size 1.5 1.5)))
     )
     """
-    conn = extract_connectors_from_pcb(
-        parse_kicad_pcb(src), fuzzy_property_matching=True
-    )[0]
+    conn = extract_connectors_from_pcb(parse_kicad_pcb(src), fuzzy_property_matching=True)[0]
     assert conn.manufacturer == "Hirose"
     assert conn.mpn == "DF13-2P"
 
@@ -644,9 +632,7 @@ def test_strict_mode_misses_unusual_field_names() -> None:
         (pad "1" thru_hole circle (at 0 0) (size 1.5 1.5)))
     )
     """
-    conn = extract_connectors_from_pcb(
-        parse_kicad_pcb(src), fuzzy_property_matching=False
-    )[0]
+    conn = extract_connectors_from_pcb(parse_kicad_pcb(src), fuzzy_property_matching=False)[0]
     # Neither key matches the strict synonym list.
     assert conn.manufacturer is None
     assert conn.mpn is None
@@ -663,9 +649,7 @@ def test_fuzzy_mpn_wins_over_manufacturer_for_part_number_keys() -> None:
         (pad "1" thru_hole circle (at 0 0) (size 1.5 1.5)))
     )
     """
-    conn = extract_connectors_from_pcb(
-        parse_kicad_pcb(src), fuzzy_property_matching=True
-    )[0]
+    conn = extract_connectors_from_pcb(parse_kicad_pcb(src), fuzzy_property_matching=True)[0]
     assert conn.mpn == "DF13-2P"
     assert conn.manufacturer is None  # only one field, classified as MPN
 
